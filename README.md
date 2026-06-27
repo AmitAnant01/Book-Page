@@ -1,4 +1,4 @@
-# 📚 Book Page — Advanced Bookstore
+# 📚 Book Page 
 
 Full-stack bookstore with:
 - Browse, search, filter books
