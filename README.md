@@ -11,7 +11,7 @@ Full-stack bookstore with:
 
 ---
 
-## ⚡ Quick Start (3 steps)
+## Quick Start (3 steps)
 
 ### 1. Install dependencies
 ```bash
@@ -37,7 +37,7 @@ Admin: http://localhost:5000/admin → `admin` / `admin123`
 
 ---
 
-## 🔑 Features
+## Features
 
 | Feature | Details |
 |---|---|
@@ -48,10 +48,10 @@ Admin: http://localhost:5000/admin → `admin` / `admin123`
 | Orders | Full order history with customer details |
 | Stock | Auto-deducts on successful payment |
 
-## 💳 Test Payment Cards
+##  Test Payment Cards
 Use these in test mode:
 - **Card**: 4111 1111 1111 1111 | Expiry: any future | CVV: any
 - **UPI**: success@razorpay
 
-## 🔐 Change Admin Password
+## Change Admin Password
 In `app.py`, `__main__` block, change `"admin123"` to your password.
