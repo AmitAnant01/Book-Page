@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block title %}Book Page — Premium Bookstore{% endblock %}
+
+{% block head %}
+<style>
+.hero{background:linear-gradient(135deg,#0d0d0d 0%,#1a1208 50%,#0d0d0d 100%);padding:80px 24px;text-align:center;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(201,168,76,.08) 0%,transparent 70%)}
+.hero h1{font-family:var(--font-serif);font-size:clamp(2.2rem,5vw,4rem);line-height:1.15;margin-bottom:16px}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero p{color:var(--dim);max-width:520px;margin:0 auto 32px;font-size:1.05rem;line-height:1.7}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+.section{max-width:1200px;margin:60px auto;padding:0 24px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.section-title{font-family:var(--font-serif);font-size:1.6rem}
+.section-title span{color:var(--gold)}
+
+/* FEATURED */
+.featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+.featured-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:.25s;cursor:pointer}
+.featured-card:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:0 12px 40px rgba(201,168,76,.12)}
+.book-img{width:100%;aspect-ratio:3/4;object-fit:cover;background:var(--bg3)}
+.book-img-placeholder{width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,var(--bg3),var(--bg2));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--dim)}
+.book-img-placeholder i{font-size:2.5rem;color:var(--gold);opacity:.4}
+.book-img-placeholder span{font-family:var(--font-serif);font-size:.9rem;text-align:center;padding:0 12px}
+.card-body{padding:16px}
+.card-category{font-size:.75rem;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.card-title{font-family:var(--font-serif);font-size:1rem;margin-bottom:4px;line-height:1.35}
+.card-author{font-size:.82rem;color:var(--dim);margin-bottom:10px}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.price-wrap{display:flex;flex-direction:column}
+.price-now{font-weight:700;font-size:1.05rem;color:var(--gold)}
+.price-was{font-size:.78rem;color:var(--dim);text-decoration:line-through}
+.add-btn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:.82rem;transition:.2s}
+.add-btn:hover{background:var(--gold);color:#000;border-color:var(--gold)}
+
+/* FILTERS */
+.filters{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:28px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.filter-label{font-size:.82rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.cat-btn{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:.82rem;color:var(--dim);cursor:pointer;transition:.2s}
+.cat-btn:hover,.cat-btn.active{background:var(--gold);color:#000;border-color:var(--gold)}
+.sort-select{margin-left:auto;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:.85rem;outline:none;cursor:pointer}
+
+.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}
+.empty{text-align:center;padding:80px 24px;color:var(--dim)}
+.empty i{font-size:3rem;color:var(--border);margin-bottom:16px}
+.discount-badge{position:absolute;top:10px;left:10px;background:var(--red);color:#fff;border-radius:6px;padding:3px 8px;font-size:.72rem;font-weight:700}
+.book-img-wrap{position:relative}
+
+/* CHECKOUT MODAL */
+.checkout-steps{display:flex;gap:8px;margin-bottom:24px}
+.step{flex:1;text-align:center;padding:10px;border-radius:8px;font-size:.82rem;background:var(--bg3);color:var(--dim)}
+.step.active{background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3)}
+.step.done{background:rgba(82,192,122,.1);color:var(--green)}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<div class="hero">
+  <h1>Discover Your Next<br><em>Great Read</em></h1>
+  <p>Thousands of books across every genre — handpicked, fairly priced, and delivered to your door.</p>
+</div>
+
+<!-- FEATURED -->
+{% if featured %}
+<section class="section">
+  <div class="section-head">
+    <h2 class="section-title">Featured <span>Picks</span></h2>
+    <a href="/" class="btn btn-ghost btn-sm">All Books <i class="fas fa-arrow-right"></i></a>
+  </div>
+  <div class="featured-grid">
+    {% for book in featured %}
+    <a href="/book/{{ book.id }}" class="featured-card">
+      <div class="book-img-wrap">
+        {% if book.image %}
+          <img src="/static/uploads/{{ book.image }}" alt="{{ book.title }}" class="book-img">
+        {% else %}
+          <div class="book-img-placeholder">
+            <i class="fas fa-book"></i>
+            <span>{{ book.title }}</span>
+          </div>
+        {% endif %}
+        {% if book.original_price and book.original_price > book.price %}
+          <span class="discount-badge">{{ ((1 - book.price/book.original_price)*100)|int }}% OFF</span>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <div class="card-category">{{ book.category }}</div>
+        <div class="card-title">{{ book.title }}</div>
+        <div class="card-author">{{ book.author }}</div>
+        <div class="stars">{% for i in range(book.rating|int) %}★{% endfor %}</div>
+        <div class="card-footer">
+          <div class="price-wrap">
+            <span class="price-now">₹{{ book.price|int }}</span>
+            {% if book.original_price > book.price %}<span class="price-was">₹{{ book.original_price|int }}</span>{% endif %}
+          </div>
+          <button class="add-btn" onclick="event.preventDefault();addToCart({{ book.id }})"><i class="fas fa-cart-plus"></i></button>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- ALL BOOKS -->
+<section class="section" id="books">
+  <div class="section-head">
+    <h2 class="section-title">All <span>Books</span> <small style="font-size:.9rem;color:var(--dim);font-family:var(--font-sans);">({{ books|length }})</small></h2>
+  </div>
+
+  <div class="filters">
+    <span class="filter-label">Category:</span>
+    <a href="/?{% if search %}q={{ search }}&{% endif %}sort={{ sort }}" class="cat-btn {{ 'active' if not current_cat }}">All</a>
+    {% for cat in categories %}
+    <a href="/?category={{ cat }}{% if search %}&q={{ search }}{% endif %}&sort={{ sort }}" class="cat-btn {{ 'active' if current_cat == cat }}">{{ cat }}</a>
+    {% endfor %}
+    <select class="sort-select" onchange="window.location='/?{% if current_cat %}category={{ current_cat }}&{% endif %}{% if search %}q={{ search }}&{% endif %}sort='+this.value">
+      <option value="newest" {{ 'selected' if sort=='newest' }}>Newest</option>
+      <option value="price_asc" {{ 'selected' if sort=='price_asc' }}>Price: Low → High</option>
+      <option value="price_desc" {{ 'selected' if sort=='price_desc' }}>Price: High → Low</option>
+      <option value="rating" {{ 'selected' if sort=='rating' }}>Top Rated</option>
+    </select>
+  </div>
+
+  {% if books %}
+  <div class="books-grid">
+    {% for book in books %}
+    <a href="/book/{{ book.id }}" class="featured-card">
+      <div class="book-img-wrap">
+        {% if book.image %}
+          <img src="/static/uploads/{{ book.image }}" alt="{{ book.title }}" class="book-img">
+        {% else %}
+          <div class="book-img-placeholder">
+            <i class="fas fa-book"></i>
+            <span>{{ book.title }}</span>
+          </div>
+        {% endif %}
+        {% if book.original_price and book.original_price > book.price %}
+          <span class="discount-badge">{{ ((1 - book.price/book.original_price)*100)|int }}% OFF</span>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <div class="card-category">{{ book.category }}</div>
+        <div class="card-title">{{ book.title }}</div>
+        <div class="card-author">{{ book.author }}</div>
+        <div class="stars">{% for i in range(book.rating|int) %}★{% endfor %}</div>
+        <div class="card-footer">
+          <div class="price-wrap">
+            <span class="price-now">₹{{ book.price|int }}</span>
+            {% if book.original_price > book.price %}<span class="price-was">₹{{ book.original_price|int }}</span>{% endif %}
+          </div>
+          <button class="add-btn" onclick="event.preventDefault();addToCart({{ book.id }})"><i class="fas fa-cart-plus"></i></button>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">
+    <i class="fas fa-book-open"></i>
+    <h3 style="margin-bottom:8px">No books found</h3>
+    <p>Try a different category or search term.</p>
+  </div>
+  {% endif %}
+</section>
+
+{% block scripts %}
+<script>
+async function addToCart(bookId, qty=1) {
+  const r = await fetch("/cart/add", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({book_id: bookId, qty})
+  });
+  const d = await r.json();
+  if (d.success) {
+    document.getElementById("cart-count-nav").textContent = d.count;
+    showToast("Added to cart! 🛒");
+  }
+}
+</script>
+{% endblock %}
+{% endblock %}

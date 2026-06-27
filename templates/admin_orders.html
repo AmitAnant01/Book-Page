@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Orders — Admin{% endblock %}
+{% block content %}
+<div style="max-width:1100px;margin:40px auto;padding:0 24px">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:28px">
+    <a href="/admin" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-left"></i></a>
+    <h1 style="font-family:var(--font-serif);font-size:1.6rem">All <span style="color:var(--gold)">Orders</span></h1>
+  </div>
+
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden">
+    <div style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:.9rem;color:var(--dim)">{{ orders|length }} total orders</span>
+    </div>
+
+    {% if orders %}
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem">
+        <thead>
+          <tr style="background:var(--bg3)">
+            <th style="padding:12px 20px;text-align:left;color:var(--dim);font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px">Order ID</th>
+            <th style="padding:12px 20px;text-align:left;color:var(--dim);font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px">Customer</th>
+            <th style="padding:12px 20px;text-align:left;color:var(--dim);font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px">Items</th>
+            <th style="padding:12px 20px;text-align:left;color:var(--dim);font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px">Amount</th>
+            <th style="padding:12px 20px;text-align:left;color:var(--dim);font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px">Status</th>
+            <th style="padding:12px 20px;text-align:left;color:var(--dim);font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:14px 20px;font-weight:600;color:var(--gold)">{{ order.order_id }}</td>
+            <td style="padding:14px 20px">
+              <div>{{ order.customer_name or '—' }}</div>
+              <div style="font-size:.78rem;color:var(--dim)">{{ order.customer_email or '' }}</div>
+            </td>
+            <td style="padding:14px 20px;color:var(--dim);font-size:.82rem;max-width:200px">
+              {% set items = order.items_json | from_json %}
+              {% for item in items %}<div>{{ item.title }} × {{ item.qty }}</div>{% endfor %}
+            </td>
+            <td style="padding:14px 20px;font-weight:700;color:var(--gold)">₹{{ order.total_amount|int }}</td>
+            <td style="padding:14px 20px">
+              {% if order.status == 'paid' %}<span style="color:var(--green);font-size:.82rem"><i class="fas fa-check-circle"></i> Paid</span>
+              {% elif order.status == 'failed' %}<span style="color:var(--red);font-size:.82rem"><i class="fas fa-times-circle"></i> Failed</span>
+              {% else %}<span style="color:#f59e0b;font-size:.82rem"><i class="fas fa-clock"></i> Pending</span>{% endif %}
+            </td>
+            <td style="padding:14px 20px;color:var(--dim);font-size:.82rem">{{ order.created_at.strftime('%d %b %Y, %H:%M') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:60px;color:var(--dim)">
+      <i class="fas fa-receipt" style="font-size:2.5rem;margin-bottom:16px;color:var(--border)"></i>
+      <p>No orders yet.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

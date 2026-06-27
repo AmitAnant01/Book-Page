@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Book — Admin{% endblock %}
+{% block content %}
+<div style="max-width:700px;margin:40px auto;padding:0 24px">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:28px">
+    <a href="/admin" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-left"></i></a>
+    <h1 style="font-family:var(--font-serif);font-size:1.6rem">{{ action }} <span style="color:var(--gold)">Book</span></h1>
+  </div>
+
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px">
+    <form method="POST" enctype="multipart/form-data">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Book Title *</label>
+          <input type="text" name="title" value="{{ book.title if book else '' }}" placeholder="The Great Gatsby" required>
+        </div>
+        <div class="form-group">
+          <label>Author *</label>
+          <input type="text" name="author" value="{{ book.author if book else '' }}" placeholder="F. Scott Fitzgerald" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description" rows="4" placeholder="Brief description of the book...">{{ book.description if book else '' }}</textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Sale Price (₹) *</label>
+          <input type="number" name="price" value="{{ book.price if book else '' }}" placeholder="299" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label>Original Price (₹)</label>
+          <input type="number" name="original_price" value="{{ book.original_price if book else '' }}" placeholder="499" step="0.01">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category</label>
+          <select name="category">
+            {% for cat in ['Fiction','Non-Fiction','Self-Help','Technology','Finance','Science','History','Biography','Children','Romance','Mystery','Fantasy'] %}
+            <option value="{{ cat }}" {{ 'selected' if book and book.category == cat }}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Stock Quantity</label>
+          <input type="number" name="stock" value="{{ book.stock if book else 10 }}" placeholder="10" min="0">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rating (1–5)</label>
+          <input type="number" name="rating" value="{{ book.rating if book else 4.0 }}" placeholder="4.5" step="0.1" min="1" max="5">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:4px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:0">
+            <input type="checkbox" name="featured" {{ 'checked' if book and book.featured }} style="width:18px;height:18px;accent-color:var(--gold)">
+            <span style="font-size:.9rem">Mark as Featured</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Book Cover Image</label>
+        {% if book and book.image %}
+          <div style="margin-bottom:10px">
+            <img src="/static/uploads/{{ book.image }}" style="width:80px;height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+            <span style="font-size:.8rem;color:var(--dim);margin-left:10px">Current image — upload new to replace</span>
+          </div>
+        {% endif %}
+        <input type="file" name="image" accept="image/*" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);width:100%">
+        <span style="font-size:.78rem;color:var(--dim);margin-top:4px;display:block">PNG, JPG, WebP · max 16MB</span>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> {{ action }} Book</button>
+        <a href="/admin" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

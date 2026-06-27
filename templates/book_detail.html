@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }} — Book Page{% endblock %}
+{% block head %}
+<style>
+.detail-wrap{max-width:1100px;margin:48px auto;padding:0 24px;display:grid;grid-template-columns:320px 1fr;gap:48px}
+.book-cover{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;aspect-ratio:3/4}
+.book-cover img{width:100%;height:100%;object-fit:cover}
+.book-cover-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:var(--dim)}
+.book-cover-placeholder i{font-size:4rem;color:var(--gold);opacity:.3}
+.detail-cat{color:var(--gold);font-size:.82rem;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+.detail-title{font-family:var(--font-serif);font-size:2.2rem;line-height:1.2;margin-bottom:8px}
+.detail-author{color:var(--dim);font-size:1rem;margin-bottom:16px}
+.detail-stars{display:flex;align-items:center;gap:10px;margin-bottom:24px}
+.detail-desc{color:#ccc;line-height:1.8;font-size:.95rem;margin-bottom:28px;border-top:1px solid var(--border);padding-top:24px}
+.price-row{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.big-price{font-size:2rem;font-weight:700;color:var(--gold)}
+.orig-price{font-size:1.1rem;color:var(--dim);text-decoration:line-through}
+.save-badge{background:rgba(82,192,122,.15);color:var(--green);padding:4px 10px;border-radius:20px;font-size:.8rem;font-weight:600}
+.qty-row{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.qty-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:8px;font-size:1.1rem;display:flex;align-items:center;justify-content:center}
+.qty-val{font-size:1.1rem;font-weight:600;min-width:32px;text-align:center}
+.stock-info{font-size:.85rem;color:var(--dim);margin-bottom:20px}
+.action-btns{display:flex;gap:12px;flex-wrap:wrap}
+
+.related-section{max-width:1100px;margin:0 auto 60px;padding:0 24px}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:20px}
+@media(max-width:700px){.detail-wrap{grid-template-columns:1fr}.book-cover{max-width:240px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-wrap">
+  <div class="book-cover">
+    {% if book.image %}
+      <img src="/static/uploads/{{ book.image }}" alt="{{ book.title }}">
+    {% else %}
+      <div class="book-cover-placeholder">
+        <i class="fas fa-book"></i>
+        <span style="font-family:var(--font-serif);font-size:1.1rem;text-align:center;padding:0 20px">{{ book.title }}</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="detail-info">
+    <div class="detail-cat">{{ book.category }}</div>
+    <h1 class="detail-title">{{ book.title }}</h1>
+    <div class="detail-author">by <strong>{{ book.author }}</strong></div>
+    <div class="detail-stars">
+      <span class="stars">{% for i in range(book.rating|int) %}★{% endfor %}{% for i in range(5-book.rating|int) %}<span style="color:var(--border)">★</span>{% endfor %}</span>
+      <span style="color:var(--dim);font-size:.85rem">{{ book.rating }} / 5.0</span>
+    </div>
+
+    <div class="price-row">
+      <span class="big-price">₹{{ book.price|int }}</span>
+      {% if book.original_price > book.price %}
+        <span class="orig-price">₹{{ book.original_price|int }}</span>
+        <span class="save-badge">Save ₹{{ (book.original_price - book.price)|int }}</span>
+      {% endif %}
+    </div>
+
+    <div class="stock-info">
+      {% if book.stock > 5 %}<span style="color:var(--green)"><i class="fas fa-circle-check"></i> In Stock ({{ book.stock }} left)</span>
+      {% elif book.stock > 0 %}<span style="color:#f59e0b"><i class="fas fa-triangle-exclamation"></i> Only {{ book.stock }} left!</span>
+      {% else %}<span style="color:var(--red)"><i class="fas fa-circle-xmark"></i> Out of Stock</span>{% endif %}
+    </div>
+
+    <div class="qty-row">
+      <span style="font-size:.85rem;color:var(--dim)">Qty:</span>
+      <button class="qty-btn" onclick="changeQty(-1)">−</button>
+      <span class="qty-val" id="qtyVal">1</span>
+      <button class="qty-btn" onclick="changeQty(1)">+</button>
+    </div>
+
+    <div class="action-btns">
+      {% if book.stock > 0 %}
+      <button class="btn btn-gold" onclick="addToCartDetail()"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+      <button class="btn btn-outline" onclick="buyNow()"><i class="fas fa-bolt"></i> Buy Now</button>
+      {% else %}
+      <button class="btn btn-ghost" disabled>Out of Stock</button>
+      <button class="btn btn-outline" id="notifyBtn" onclick="notifyMe({{ book.id }})"><i class="fas fa-bell"></i> Notify Me When Available</button>
+      {% endif %}
+    </div>
+
+    <div class="detail-desc">{{ book.description }}</div>
+
+    <div style="display:flex;gap:24px;flex-wrap:wrap">
+      <div style="text-align:center;padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;flex:1;min-width:100px">
+        <i class="fas fa-truck" style="color:var(--gold);margin-bottom:6px"></i>
+        <div style="font-size:.8rem;color:var(--dim)">Free Delivery</div>
+        <div style="font-size:.85rem">Orders ₹499+</div>
+      </div>
+      <div style="text-align:center;padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;flex:1;min-width:100px">
+        <i class="fas fa-shield-halved" style="color:var(--gold);margin-bottom:6px"></i>
+        <div style="font-size:.8rem;color:var(--dim)">Secure Payment</div>
+        <div style="font-size:.85rem">Razorpay</div>
+      </div>
+      <div style="text-align:center;padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;flex:1;min-width:100px">
+        <i class="fas fa-rotate-left" style="color:var(--gold);margin-bottom:6px"></i>
+        <div style="font-size:.8rem;color:var(--dim)">Easy Returns</div>
+        <div style="font-size:.85rem">7 Days</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if related %}
+<div class="related-section">
+  <h3 style="font-family:var(--font-serif);font-size:1.4rem">More in <span style="color:var(--gold)">{{ book.category }}</span></h3>
+  <div class="related-grid">
+    {% for rb in related %}
+    <a href="/book/{{ rb.id }}" style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:.2s;display:block" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+      {% if rb.image %}
+        <img src="/static/uploads/{{ rb.image }}" alt="{{ rb.title }}" style="width:100%;aspect-ratio:3/4;object-fit:cover">
+      {% else %}
+        <div style="width:100%;aspect-ratio:3/4;background:var(--bg3);display:flex;align-items:center;justify-content:center"><i class="fas fa-book" style="color:var(--gold);opacity:.3;font-size:2rem"></i></div>
+      {% endif %}
+      <div style="padding:12px">
+        <div style="font-size:.85rem;font-family:var(--font-serif)">{{ rb.title }}</div>
+        <div style="color:var(--gold);font-weight:700;margin-top:6px">₹{{ rb.price|int }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% block scripts %}
+<script>
+let qty = 1;
+function changeQty(d) {
+  qty = Math.max(1, qty + d);
+  document.getElementById("qtyVal").textContent = qty;
+}
+async function addToCartDetail() {
+  const r = await fetch("/cart/add", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({book_id: {{ book.id }}, qty})
+  });
+  const d = await r.json();
+  if (d.success) { document.getElementById("cart-count-nav").textContent = d.count; showToast("Added to cart! 🛒"); }
+}
+async function buyNow() {
+  await addToCartDetail();
+  window.location.href = "/cart";
+}
+async function notifyMe(bookId) {
+  const btn = document.getElementById("notifyBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+  try {
+    const r = await fetch(`/book/${bookId}/notify`, { method: "POST" });
+    const d = await r.json();
+    if (d.success) {
+      btn.innerHTML = '<i class="fas fa-check"></i> We\'ll notify you!';
+      showToast("You'll be notified once this book is back in stock 🔔");
+    }
+  } catch {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-bell"></i> Notify Me When Available';
+  }
+}
+</script>
+{% endblock %}
+{% endblock %}

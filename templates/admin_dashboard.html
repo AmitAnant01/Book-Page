@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — Book Page{% endblock %}
+{% block head %}
+<style>
+.admin-wrap{max-width:1200px;margin:32px auto;padding:0 24px}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px}
+.stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:14px}
+.stat-num{font-size:1.8rem;font-weight:700;margin-bottom:4px}
+.stat-label{font-size:.82rem;color:var(--dim)}
+.admin-grid{display:grid;grid-template-columns:1fr 360px;gap:24px}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.panel-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-family:var(--font-serif);font-size:1.1rem}
+.book-row{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border)}
+.book-row:last-child{border-bottom:none}
+.book-thumb{width:40px;height:52px;background:var(--bg3);border-radius:6px;object-fit:cover;flex-shrink:0}
+.book-thumb-ph{width:40px;height:52px;background:var(--bg3);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.book-row-info{flex:1;min-width:0}
+.book-row-title{font-size:.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.book-row-meta{font-size:.78rem;color:var(--dim);margin-top:2px}
+.book-row-price{color:var(--gold);font-weight:600;font-size:.9rem;margin-right:8px}
+.book-row-actions{display:flex;gap:6px}
+.order-row{padding:14px 20px;border-bottom:1px solid var(--border)}
+.order-row:last-child{border-bottom:none}
+.status-paid{color:var(--green);font-size:.8rem}
+.status-pending{color:#f59e0b;font-size:.8rem}
+.status-failed{color:var(--red);font-size:.8rem}
+.oos-row{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border)}
+.oos-row:last-child{border-bottom:none}
+.restock-input{width:60px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:.85rem;text-align:center}
+.req-row{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);font-size:.85rem}
+.req-row:last-child{border-bottom:none}
+.section-title-panel{font-family:var(--font-serif);font-size:1.4rem;margin:36px 0 16px}
+@media(max-width:800px){.admin-grid{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-wrap">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+    <h1 style="font-family:var(--font-serif);font-size:1.8rem">Admin <span style="color:var(--gold)">Dashboard</span></h1>
+    <div style="display:flex;gap:10px">
+      <a href="/admin/book/add" class="btn btn-gold btn-sm"><i class="fas fa-plus"></i> Add Book</a>
+      <a href="/admin/orders" class="btn btn-ghost btn-sm"><i class="fas fa-receipt"></i> All Orders</a>
+      <a href="/admin/logout" class="btn btn-ghost btn-sm" style="color:var(--red)"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(201,168,76,.15)"><i class="fas fa-book" style="color:var(--gold)"></i></div>
+      <div class="stat-num">{{ stats.total_books }}</div>
+      <div class="stat-label">Total Books</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(82,192,122,.15)"><i class="fas fa-receipt" style="color:var(--green)"></i></div>
+      <div class="stat-num">{{ stats.total_orders }}</div>
+      <div class="stat-label">Total Orders</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(82,192,122,.15)"><i class="fas fa-check-circle" style="color:var(--green)"></i></div>
+      <div class="stat-num">{{ stats.paid_orders }}</div>
+      <div class="stat-label">Paid Orders</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(201,168,76,.15)"><i class="fas fa-indian-rupee-sign" style="color:var(--gold)"></i></div>
+      <div class="stat-num">₹{{ stats.revenue|int }}</div>
+      <div class="stat-label">Total Revenue</div>
+    </div>
+  </div>
+
+  <div class="admin-grid">
+    <!-- BOOKS TABLE -->
+    <div class="panel">
+      <div class="panel-head">
+        <span><i class="fas fa-books" style="color:var(--gold)"></i> Books ({{ books|length }})</span>
+        <a href="/admin/book/add" class="btn btn-gold btn-sm"><i class="fas fa-plus"></i> Add</a>
+      </div>
+      {% for book in books %}
+      <div class="book-row" id="br-{{ book.id }}">
+        {% if book.image %}
+          <img src="/static/uploads/{{ book.image }}" class="book-thumb" alt="">
+        {% else %}
+          <div class="book-thumb-ph"><i class="fas fa-book" style="color:var(--gold);opacity:.4;font-size:.9rem"></i></div>
+        {% endif %}
+        <div class="book-row-info">
+          <div class="book-row-title">{{ book.title }}</div>
+          <div class="book-row-meta">{{ book.author }} · {{ book.category }} · Stock: {{ book.stock }}</div>
+        </div>
+        <span class="book-row-price">₹{{ book.price|int }}</span>
+        <div class="book-row-actions">
+          <a href="/admin/book/edit/{{ book.id }}" class="btn btn-ghost btn-sm"><i class="fas fa-pen"></i></a>
+          <button class="btn btn-red btn-sm" onclick="deleteBook({{ book.id }})"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- RECENT ORDERS -->
+    <div class="panel">
+      <div class="panel-head">
+        <span><i class="fas fa-receipt" style="color:var(--gold)"></i> Recent Orders</span>
+        <a href="/admin/orders" style="font-size:.82rem;color:var(--gold)">View All</a>
+      </div>
+      {% for order in orders %}
+      <div class="order-row">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-size:.88rem;font-weight:600">{{ order.order_id }}</div>
+            <div style="font-size:.78rem;color:var(--dim)">{{ order.customer_name or 'Unknown' }}</div>
+          </div>
+          <span class="status-{{ order.status }}">
+            {% if order.status == 'paid' %}<i class="fas fa-check-circle"></i> Paid
+            {% elif order.status == 'failed' %}<i class="fas fa-times-circle"></i> Failed
+            {% else %}<i class="fas fa-clock"></i> Pending{% endif %}
+          </span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
+          <span style="font-size:.78rem;color:var(--dim)">{{ order.created_at.strftime('%d %b, %H:%M') }}</span>
+          <span style="font-size:.88rem;font-weight:600;color:var(--gold)">₹{{ order.total_amount|int }}</span>
+        </div>
+      </div>
+      {% endfor %}
+      {% if not orders %}<p style="padding:24px;color:var(--dim);text-align:center">No orders yet</p>{% endif %}
+    </div>
+  </div>
+
+  <!-- OUT OF STOCK + RESTOCK -->
+  <h2 class="section-title-panel"><i class="fas fa-triangle-exclamation" style="color:var(--red)"></i> Out of Stock <span style="color:var(--gold)">({{ out_of_stock|length }})</span></h2>
+  <div class="admin-grid">
+    <div class="panel">
+      <div class="panel-head"><span>Books needing restock</span></div>
+      {% for book in out_of_stock %}
+      <div class="oos-row" id="oos-{{ book.id }}">
+        {% if book.image %}
+          <img src="/static/uploads/{{ book.image }}" class="book-thumb" alt="">
+        {% else %}
+          <div class="book-thumb-ph"><i class="fas fa-book" style="color:var(--gold);opacity:.4;font-size:.9rem"></i></div>
+        {% endif %}
+        <div class="book-row-info">
+          <div class="book-row-title">{{ book.title }}</div>
+          <div class="book-row-meta">{{ book.author }} · {{ book.category }}</div>
+        </div>
+        <input type="number" class="restock-input" id="qty-{{ book.id }}" value="10" min="1">
+        <button class="btn btn-gold btn-sm" onclick="restockBook({{ book.id }})"><i class="fas fa-box"></i> Restock</button>
+      </div>
+      {% endfor %}
+      {% if not out_of_stock %}<p style="padding:24px;color:var(--dim);text-align:center">🎉 Nothing out of stock</p>{% endif %}
+    </div>
+
+    <!-- PENDING NOTIFY REQUESTS -->
+    <div class="panel">
+      <div class="panel-head"><span><i class="fas fa-bell" style="color:var(--gold)"></i> Notify-Me Requests</span></div>
+      {% for req in pending_requests %}
+      <div class="req-row">
+        <div>
+          <div style="font-weight:600">{{ req.book.title }}</div>
+          <div style="color:var(--dim);font-size:.78rem">{{ req.customer_name }} ({{ req.customer_email }})</div>
+        </div>
+        <span style="color:var(--dim);font-size:.75rem">{{ req.created_at.strftime('%d %b') }}</span>
+      </div>
+      {% endfor %}
+      {% if not pending_requests %}<p style="padding:24px;color:var(--dim);text-align:center">No pending requests</p>{% endif %}
+    </div>
+  </div>
+</div>
+
+{% block scripts %}
+<script>
+async function deleteBook(id) {
+  if (!confirm("Delete this book?")) return;
+  const r = await fetch(`/admin/book/delete/${id}`, { method:"POST" });
+  const d = await r.json();
+  if (d.success) {
+    document.getElementById(`br-${id}`)?.remove();
+    showToast("Book deleted");
+  }
+}
+async function restockBook(id) {
+  const qtyInput = document.getElementById(`qty-${id}`);
+  const qty = parseInt(qtyInput.value) || 10;
+  const r = await fetch(`/admin/book/restock/${id}`, {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({qty})
+  });
+  const d = await r.json();
+  if (d.success) {
+    showToast(`Restocked! New stock: ${d.new_stock} 📦`);
+    document.getElementById(`oos-${id}`)?.remove();
+  }
+}
+</script>
+{% endblock %}
+{% endblock %}

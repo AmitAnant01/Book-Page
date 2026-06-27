@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Order Confirmed — Book Page{% endblock %}
+{% block content %}
+<div style="max-width:640px;margin:64px auto;padding:0 24px;text-align:center">
+  <div style="width:80px;height:80px;background:rgba(82,192,122,.15);border:2px solid var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:2rem;color:var(--green)">
+    <i class="fas fa-check"></i>
+  </div>
+  <h1 style="font-family:var(--font-serif);font-size:2rem;margin-bottom:8px">Order Confirmed!</h1>
+  <p style="color:var(--dim);margin-bottom:32px">Thank you for your purchase. Your books are on their way!</p>
+
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;text-align:left;margin-bottom:24px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:.8rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px">Order ID</div>
+        <div style="font-weight:700;color:var(--gold);font-size:1.1rem">{{ order.order_id }}</div>
+      </div>
+      <div>
+        <div style="font-size:.8rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px">Status</div>
+        <span class="badge badge-green"><i class="fas fa-circle-check"></i> Paid</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <div style="font-size:.8rem;color:var(--dim);margin-bottom:4px">Deliver to</div>
+      <div style="font-weight:600">{{ order.customer_name }}</div>
+      <div style="color:var(--dim);font-size:.88rem">{{ order.customer_email }}</div>
+      <div style="color:var(--dim);font-size:.88rem">{{ order.customer_address }}</div>
+    </div>
+
+    <div style="border-top:1px solid var(--border);padding-top:16px">
+      <div style="font-size:.8rem;color:var(--dim);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">Items Ordered</div>
+      {% for item in items %}
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:.9rem">
+        <span>{{ item.title }} <span style="color:var(--dim)">× {{ item.qty }}</span></span>
+        <span style="color:var(--gold)">₹{{ (item.price * item.qty)|int }}</span>
+      </div>
+      {% endfor %}
+      <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:8px;display:flex;justify-content:space-between;font-weight:700;font-size:1rem">
+        <span>Total Paid</span>
+        <span style="color:var(--gold)">₹{{ order.total_amount|int }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <a href="/" class="btn btn-gold"><i class="fas fa-book-open"></i> Continue Shopping</a>
+    <a href="/admin/orders" class="btn btn-ghost"><i class="fas fa-receipt"></i> View All Orders</a>
+  </div>
+</div>
+{% endblock %}

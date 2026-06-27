@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Book Page — Premium Bookstore{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg:       #0d0d0d;
+  --bg2:      #161616;
+  --bg3:      #1e1e1e;
+  --border:   #2a2a2a;
+  --gold:     #c9a84c;
+  --gold2:    #e8c97a;
+  --text:     #f0ece4;
+  --dim:      #888;
+  --red:      #e05252;
+  --green:    #52c07a;
+  --radius:   12px;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans:  'Inter', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font-sans);min-height:100vh}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+button{cursor:pointer;font-family:var(--font-sans)}
+
+/* NAV */
+nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:20px;height:64px;position:sticky;top:0;z-index:100}
+.nav-logo{font-family:var(--font-serif);font-size:1.5rem;color:var(--gold);font-weight:700;letter-spacing:1px}
+.nav-logo span{color:var(--text)}
+.nav-links{display:flex;gap:4px;margin-left:auto;align-items:center}
+.nav-links a{padding:8px 14px;border-radius:8px;font-size:.9rem;color:var(--dim);transition:.2s}
+.nav-links a:hover{color:var(--text);background:var(--bg3)}
+.nav-search{flex:1;max-width:360px;margin-left:24px;position:relative}
+.nav-search input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 14px 9px 40px;color:var(--text);font-size:.9rem;outline:none;transition:.2s}
+.nav-search input:focus{border-color:var(--gold)}
+.nav-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--dim)}
+#search-suggest{position:absolute;top:46px;left:0;right:0;background:var(--bg2);border:1px solid var(--border);border-radius:10px;max-height:360px;overflow-y:auto;z-index:200;display:none;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+#search-suggest.open{display:block}
+.suggest-item{display:flex;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);align-items:center}
+.suggest-item:last-child{border-bottom:none}
+.suggest-item:hover{background:var(--bg3)}
+.suggest-item img{width:32px;height:44px;object-fit:cover;border-radius:4px;background:var(--bg3);flex-shrink:0}
+.suggest-item .s-title{font-size:.85rem;color:var(--text);line-height:1.3}
+.suggest-item .s-author{font-size:.75rem;color:var(--dim)}
+.suggest-empty{padding:14px;text-align:center;color:var(--dim);font-size:.82rem}
+.cart-btn{background:var(--gold);color:#000;border:none;border-radius:8px;padding:9px 16px;font-weight:600;font-size:.9rem;display:flex;align-items:center;gap:8px;transition:.2s}
+.cart-btn:hover{background:var(--gold2)}
+.cart-count{background:#000;color:var(--gold);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700}
+
+/* ALERTS */
+.flash{padding:12px 20px;border-radius:8px;margin:16px 24px;font-size:.9rem}
+.flash.success{background:#1a3a25;border:1px solid var(--green);color:var(--green)}
+.flash.error{background:#3a1a1a;border:1px solid var(--red);color:var(--red)}
+
+/* FOOTER */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24px 24px;margin-top:80px}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px}
+.footer-brand{font-family:var(--font-serif);font-size:1.4rem;color:var(--gold);margin-bottom:8px}
+.footer-sub{color:var(--dim);font-size:.875rem;line-height:1.6}
+.footer-links h4{color:var(--text);font-size:.9rem;margin-bottom:12px}
+.footer-links a{display:block;color:var(--dim);font-size:.875rem;margin-bottom:6px;transition:.2s}
+.footer-links a:hover{color:var(--gold)}
+.footer-bottom{text-align:center;color:var(--dim);font-size:.8rem;margin-top:32px;padding-top:20px;border-top:1px solid var(--border)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:520px;width:100%;position:relative;max-height:90vh;overflow-y:auto}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--bg3);border:none;color:var(--dim);width:32px;height:32px;border-radius:50%;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:.2s}
+.modal-close:hover{color:var(--text);background:var(--border)}
+
+/* FORMS */
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:.85rem;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group textarea,.form-group select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:.9rem;font-family:var(--font-sans);outline:none;transition:.2s}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--gold)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;font-size:.9rem;font-weight:600;border:none;transition:.2s;cursor:pointer}
+.btn-gold{background:var(--gold);color:#000}
+.btn-gold:hover{background:var(--gold2)}
+.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+.btn-outline:hover{background:var(--gold);color:#000}
+.btn-red{background:var(--red);color:#fff}
+.btn-ghost{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm{padding:7px 14px;font-size:.82rem}
+.btn-block{width:100%;justify-content:center}
+
+/* BADGE */
+.badge{padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600}
+.badge-gold{background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3)}
+.badge-green{background:rgba(82,192,122,.15);color:var(--green)}
+.badge-red{background:rgba(224,82,82,.15);color:var(--red)}
+
+/* STARS */
+.stars{color:var(--gold);font-size:.85rem;letter-spacing:2px}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 20px;font-size:.9rem;z-index:9999;transform:translateY(100px);opacity:0;transition:.3s;max-width:320px}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.success{border-color:var(--green);color:var(--green)}
+#toast.error{border-color:var(--red);color:var(--red)}
+</style>
+{% block head %}{% endblock %}
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Book<span>Page</span></a>
+  <form class="nav-search" action="/" method="get" autocomplete="off">
+    <i class="fas fa-search"></i>
+    <input type="text" id="nav-search-input" name="q" placeholder="Search books, authors…" value="{{ request.args.get('q','') }}">
+    <div id="search-suggest"></div>
+  </form>
+  <div class="nav-links">
+    <a href="/"><i class="fas fa-home"></i></a>
+    {% if session.get('admin') %}
+    <a href="/admin"><i class="fas fa-cog"></i> Admin</a>
+    <a href="/admin/logout" style="color:var(--red)">Logout</a>
+    {% endif %}
+    {% if session.get('user_id') %}
+    <a href="#"><i class="fas fa-user"></i> {{ session.get('user_name') }}</a>
+    <a href="{{ url_for('logout') }}" style="color:var(--red)"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    {% elif not session.get('admin') %}
+    <a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Login</a>
+    <a href="{{ url_for('signup') }}" class="btn btn-outline btn-sm">Sign Up</a>
+    {% endif %}
+  </div>
+  <a href="/cart" class="cart-btn">
+    <i class="fas fa-shopping-cart"></i>
+    <span id="cart-count-nav" class="cart-count">0</span>
+  </a>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% for cat, msg in messages %}
+<div class="flash {{ cat }}">{{ msg }}</div>
+{% endfor %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Book Page</div>
+      <p class="footer-sub">Your curated destination for premium books — delivered fast, priced right.</p>
+    </div>
+    <div class="footer-links">
+      <h4>Shop</h4>
+      <a href="/?category=Fiction">Fiction</a>
+      <a href="/?category=Self-Help">Self-Help</a>
+      <a href="/?category=Technology">Technology</a>
+      <a href="/?category=Finance">Finance</a>
+    </div>
+    <div class="footer-links">
+      <h4>Help</h4>
+      <a href="#">Shipping Policy</a>
+      <a href="#">Returns</a>
+      <a href="#">Contact Us</a>
+    </div>
+    <div class="footer-links">
+      <h4>Secure Payments</h4>
+      <p style="color:var(--dim);font-size:.85rem">Powered by Razorpay — UPI, Cards, NetBanking, Wallets accepted.</p>
+    </div>
+  </div>
+  <div class="footer-bottom">&copy; 2024 Book Page. All rights reserved.</div>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+function showToast(msg, type="success") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  setTimeout(() => t.className = "", 3000);
+}
+
+async function updateCartCount() {
+  try {
+    const r = await fetch("/api/cart-count");
+    const d = await r.json();
+    document.getElementById("cart-count-nav").textContent = d.count;
+  } catch {}
+}
+updateCartCount();
+
+// ── Live search suggestions (free Google Books API) ──
+(function(){
+  const input = document.getElementById("nav-search-input");
+  const box   = document.getElementById("search-suggest");
+  if (!input || !box) return;
+  let debounce;
+
+  input.addEventListener("input", () => {
+    clearTimeout(debounce);
+    const q = input.value.trim();
+    if (q.length < 2) { box.classList.remove("open"); box.innerHTML = ""; return; }
+    debounce = setTimeout(async () => {
+      try {
+        const r = await fetch(`/api/search-books?q=${encodeURIComponent(q)}`);
+        const d = await r.json();
+        console.log("search-books response:", d);
+        if (!d.results || d.results.length === 0) {
+          box.innerHTML = `<div class="suggest-empty">No matches found</div>`;
+        } else {
+          box.innerHTML = d.results.map(b => `
+            <a class="suggest-item" href="/?q=${encodeURIComponent(b.title)}" style="color:inherit">
+              ${b.thumb ? `<img src="${b.thumb}">` : `<div style="width:32px;height:44px;background:var(--bg3);border-radius:4px;flex-shrink:0"></div>`}
+              <div>
+                <div class="s-title">${b.title}</div>
+                <div class="s-author">${b.authors}</div>
+              </div>
+            </a>`).join("");
+        }
+        box.classList.add("open");
+      } catch (err) { console.error("search-books fetch failed:", err); box.classList.remove("open"); }
+    }, 350);
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!box.contains(e.target) && e.target !== input) box.classList.remove("open");
+  });
+})();
+</script>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>
